@@ -1,0 +1,62 @@
+plugins {
+	id 'org.springframework.boot' version '2.2.6.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+	id "io.freefair.lombok" version "5.0.0-rc6"
+	id 'java'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	// Required for jwt
+	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+	runtimeOnly 'org.postgresql:postgresql'
+	// ldap related
+	implementation 'org.springframework.security:spring-security-ldap'
+	implementation 'org.springframework.boot:spring-boot-starter-data-ldap'
+
+	testImplementation('junit:junit:4.12')
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+	testImplementation 'org.springframework.security:spring-security-test'
+	// ldap related
+	testImplementation 'com.unboundid:unboundid-ldapsdk'
+}
+
+test {
+	useJUnitPlatform()
+}
+
+// SCA Gradle adapter settings
+
+apply plugin: 'java'
+allprojects {
+   tasks.withType(JavaCompile) {
+     task->
+       task.options.compilerArgs << '-parameters'
+       task.options.fork = true
+       task.options.forkOptions.executable = 'javac'
+ }
+}
+
+def profiles = 'dev'
+
+bootRun {
+	args = ["--spring.profiles.active=" + profiles]
+}
